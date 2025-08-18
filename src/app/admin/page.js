@@ -5,6 +5,7 @@
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import RequestManager from "@/components/RequestManager"; // Updated import name
+import { useEffect } from "react";
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -15,15 +16,17 @@ export default function AdminDashboard() {
     },
   });
 
+  useEffect(() => {
+    if (status === 'authenticated' && session && session.user.role !== 'admin') {
+      router.replace('/');
+    }
+  }, [session, status, router]);
+
   if (status === "loading") {
     return <p className="text-center mt-10">Loading...</p>;
   }
 
-  if (session.user.role !== 'admin') {
-    
-      router.replace('/')
-    
-  }
+  
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">

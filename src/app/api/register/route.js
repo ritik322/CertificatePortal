@@ -1,4 +1,3 @@
-// src/app/api/register/route.js
 
 import dbConnect from "@/lib/dbConnect";
 import User from "@/models/User";
@@ -19,7 +18,6 @@ export async function POST(request) {
       collegeRollNo,
     } = body;
 
-    // Use the universityRollNo as the username
     const username = universityRollNo;
 
     const existingUser = await User.findOne({

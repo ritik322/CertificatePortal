@@ -51,7 +51,7 @@ export default function RegisterPage() {
 
       setSuccess("Registration successful! Redirecting to login...");
       setTimeout(() => {
-        router.push("/login");
+        router.push("/");
       }, 2000);
     } catch (err) {
       setError("An error occurred during registration.");
@@ -78,7 +78,7 @@ export default function RegisterPage() {
           <input name="password" type="password" placeholder="Password" onChange={handleChange} required className="md:col-span-2 px-4 py-2 bg-gray-700 rounded border border-gray-600 focus:outline-none focus:border-indigo-500" />
           <select name="department" value={formData.department} onChange={handleChange} required className="px-4 py-2 bg-gray-700 rounded border border-gray-600 focus:outline-none focus:border-indigo-500">
             <option value="" disabled>Select Department</option>
-            {departments.map(dep => <option key={dep} value={dep}>{dep}</option>)}
+            {departments.map(dep => <option key={dep} value={dep.toLocaleLowerCase()}>{dep}</option>)}
           </select>
           <input name="collegeRollNo" placeholder="College Roll No" onChange={handleChange} required className="px-4 py-2 bg-gray-700 rounded border border-gray-600 focus:outline-none focus:border-indigo-500" />
         </div>
