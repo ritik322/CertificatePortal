@@ -1,9 +1,9 @@
-
 "use client";
 
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import CertificateManager from "@/components/CertificateManager"; // Import the component
+import CertificateManager from "@/components/CertificateManager";
+import Loader from "@/components/Loader";
 
 export default function StudentDashboard() {
   const router = useRouter();
@@ -15,36 +15,44 @@ export default function StudentDashboard() {
   });
 
   if (status === "loading") {
-    return <p className="text-center mt-10">Loading...</p>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader text="Loading Dashboard..." />
+      </div>
+    );
   }
 
   if (session.user.role !== 'student') {
     return (
         <div className="text-center mt-10">
-            <p>Access Denied. You are not a student.</p>
+            <p>Access Denied. Redirecting...</p>
         </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      <header className="bg-gray-800 shadow-md">
-        <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
-          <h1 className="text-xl font-bold">Student Dashboard</h1>
-          <div>
-            <span className="mr-4">Welcome, {session.user.name}</span>
-            <button
-              onClick={() => signOut({ callbackUrl: '/' })}
-              className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition duration-300"
-            >
-              Sign Out
-            </button>
+    <div className="min-h-screen bg-gray-50 text-gray-900">
+      <header className="bg-white border-b border-gray-200 shadow-sm">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <h1 className="text-xl font-bold text-gray-800">Welcome, {session.user.name}</h1>
+            <div className="flex items-center">
+              <span className="hidden sm:inline mr-4 text-sm text-gray-600">
+                
+              </span>
+              <button
+                onClick={() => signOut({ callbackUrl: '/' })}
+                className="px-4 py-2 text-sm font-medium   rounded-md shadow-sm bg-indigo-500 text-white hover:cursor-pointer hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                Sign Out
+              </button>
+            </div>
           </div>
-        </nav>
+        </div>
       </header>
 
-      <main className="container mx-auto px-6 py-8">
-        <CertificateManager /> {/* Add the component here */}
+      <main className="container mx-auto p-4 sm:p-6 lg:p-8">
+        <CertificateManager />
       </main>
     </div>
   );

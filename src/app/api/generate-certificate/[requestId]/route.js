@@ -1,5 +1,3 @@
-// src/app/api/generate-certificate/[requestId]/route.js
-
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../auth/[...nextauth]/route";
 import dbConnect from "@/lib/dbConnect";
@@ -17,7 +15,7 @@ export async function GET(request, { params }) {
   const { requestId } = params;
 
   try {
-    const certRequest = await CertificateRequest.findById(requestId);
+    const certRequest = await CertificateRequest.findById(requestId).populate('templateId');
     if (!certRequest || certRequest.studentId.toString() !== session.user.id) {
       return NextResponse.json({ message: "Certificate request not found or access denied" }, { status: 404 });
     }
@@ -27,21 +25,31 @@ export async function GET(request, { params }) {
     }
 
     const student = await User.findById(session.user.id);
+    const templateId = certRequest.templateId.templateId;
+
+    const payload = {
+      templateId: templateId,
+      fields: {
+        name: student.name,
+        universityrollno: student.universityRollNo,
+        collegerollno: student.collegeRollNo,
+        department: student.department,
+        companyname: certRequest.companyName,
+        companyaddress: certRequest.companyAddress,
+        companyemail: certRequest.companyEmail || '',
+        companycontact: certRequest.companyContact,
+        approveddate: certRequest.approvedDate ? new Date(certRequest.approvedDate).toLocaleDateString() : '',
+      }
+    };
 
     const response = await fetch(process.env.APPS_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: student.name,
-        companyName: certRequest.companyName,
-        department: student.department,
-      }),
+      body: JSON.stringify(payload),
     });
 
     const result = await response.json();
-    if (result.error) {
-      throw new Error(result.error);
-    }
+    if (result.error) { throw new Error(result.error); }
     
     const pdfBuffer = Buffer.from(result.pdfBase64, 'base64');
     

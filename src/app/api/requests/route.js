@@ -43,6 +43,8 @@ export async function GET(request) {
   }
 }
 
+// in src/app/api/requests/route.js
+
 export async function POST(request) {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== 'student') {
@@ -52,20 +54,24 @@ export async function POST(request) {
   await dbConnect();
   
   try {
-    const { companyName } = await request.json();
-    if (!companyName) {
-      return NextResponse.json({ message: "Company name is required" }, { status: 400 });
+    const { templateId, companyName, companyAddress, companyEmail, companyContact } = await request.json();
+    if (!templateId || !companyName || !companyAddress ||  !companyContact) {
+      return NextResponse.json({ message: "All fields are required" }, { status: 400 });
     }
 
     const newRequest = new CertificateRequest({
       studentId: session.user.id,
+      templateId, // Save the selected template ID
       companyName,
+      companyAddress,
+      companyEmail,
+      companyContact,
     });
 
     await newRequest.save();
     return NextResponse.json(newRequest, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ message: "Server error" }, { status: 500 });
+    return NextResponse.json({ message: "Server error", error: error.message }, { status: 500 });
   }
 }
 
@@ -78,14 +84,19 @@ export async function PATCH(request) {
   await dbConnect();
 
   try {
-    const { requestId, status } = await request.json();
+    const { requestId, status, remarks } = await request.json(); // Destructure remarks
     if (!requestId || !status) {
       return NextResponse.json({ message: "Request ID and status are required" }, { status: 400 });
     }
 
+    const updateData = { status, remarks }; // Add remarks to the update object
+    if (status === 'Approved') {
+      updateData.approvedDate = new Date();
+    }
+
     const updatedRequest = await CertificateRequest.findByIdAndUpdate(
       requestId,
-      { status },
+      updateData,
       { new: true }
     );
 
@@ -94,6 +105,7 @@ export async function PATCH(request) {
     }
 
     return NextResponse.json(updatedRequest, { status: 200 });
+
   } catch (error) {
     return NextResponse.json({ message: "Server error" }, { status: 500 });
   }
