@@ -12,7 +12,7 @@ export async function GET(request, { params }) {
   }
 
   await dbConnect();
-  const { requestId } = params;
+  const { requestId } = await params;
 
   try {
     const certRequest = await CertificateRequest.findById(requestId).populate('templateId');
@@ -31,9 +31,10 @@ export async function GET(request, { params }) {
       templateId: templateId,
       fields: {
         name: student.name,
+        email: student.email,
         universityrollno: student.universityRollNo,
         collegerollno: student.collegeRollNo,
-        department: student.department,
+        branch: student.department.toUpperCase(),
         companyname: certRequest.companyName,
         companyaddress: certRequest.companyAddress,
         companyemail: certRequest.companyEmail || '',

@@ -43,7 +43,6 @@ export async function GET(request) {
   }
 }
 
-// in src/app/api/requests/route.js
 
 export async function POST(request) {
   const session = await getServerSession(authOptions);
@@ -89,7 +88,7 @@ export async function PATCH(request) {
       return NextResponse.json({ message: "Request ID and status are required" }, { status: 400 });
     }
 
-    const updateData = { status, remarks }; // Add remarks to the update object
+    const updateData = { status, remarks }; 
     if (status === 'Approved') {
       updateData.approvedDate = new Date();
     }
