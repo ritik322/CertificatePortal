@@ -3,40 +3,35 @@ import { authOptions } from "../../auth/[...nextauth]/route";
 import dbConnect from "@/lib/dbConnect";
 import CertificateRequest from "@/models/CertificateRequest";
 import User from "@/models/User";
-import Template from "@/models/Template";
 import { NextResponse } from "next/server";
 
 export async function GET(request, { params }) {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role in ["student", "admin"]) {
+  if (!session) { // Simplified authorization check
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
   await dbConnect();
-  const { requestId } = await params;
+  const { requestId } = params; 
 
   try {
-    const certRequest =
-      await CertificateRequest.findById(requestId).populate("templateId");
-    if (
-      !certRequest ||
-      (session.user.role === "student" &&
-        certRequest.studentId.toString() !== session.user.id)
-    ) {
-      return NextResponse.json(
-        { message: "Certificate request not found or access denied" },
-        { status: 404 },
-      );
+    const certRequest = await CertificateRequest.findById(requestId)
+      .populate("templateId")
+      .populate("studentId"); 
+
+    if (!certRequest) {
+      return NextResponse.json({ message: "Certificate request not found" }, { status: 404 });
+    }
+
+    if (session.user.role === "student" && certRequest.studentId._id.toString() !== session.user.id) {
+      return NextResponse.json({ message: "Access denied" }, { status: 403 });
     }
 
     if (certRequest.status !== "Approved") {
-      return NextResponse.json(
-        { message: "This request has not been approved" },
-        { status: 403 },
-      );
+      return NextResponse.json({ message: "This request has not been approved" }, { status: 403 });
     }
 
-    const student = await User.findById(session.user.id);
+    const student = certRequest.studentId; 
     const templateId = certRequest.templateId.templateId;
 
     const payload = {
@@ -74,7 +69,7 @@ export async function GET(request, { params }) {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="${student.name}-certificate.pdf"`,
+        "Content-Disposition": `attachment; filename="${student.universityRollNo}.pdf"`,
       },
     });
   } catch (error) {

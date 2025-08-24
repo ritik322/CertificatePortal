@@ -22,7 +22,8 @@ export default function AdminRequestManager() {
   const [error, setError] = useState("");
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const [selectedDetailsRequest, setSelectedDetailsRequest] = useState(null);
-
+  const [templates,setTemplates] = useState([])
+ 
   const fetchRequests = useCallback(async () => {
     try {
       const res = await fetch("/api/requests");
@@ -33,9 +34,20 @@ export default function AdminRequestManager() {
       setError(err.message);
     }
   }, []);
+  const fetchTemplates = async () => {
+    try {
+      const res = await fetch("/api/templates");
+      if (!res.ok) throw new Error("Failed to fetch templates.");
+      const data = await res.json();
+      setTemplates(data);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
   useEffect(() => {
     fetchRequests();
+    fetchTemplates()
   }, [fetchRequests]);
 
   const handleUpdateStatus = useCallback(
@@ -64,6 +76,14 @@ export default function AdminRequestManager() {
   // Define columns for the new data table
   const columns = useMemo(
     () => [
+      {
+        accessorFn: (row) => row.templateId?.name || "N/A",
+        id: "documentType",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Document Type" />
+        ),
+        cell: ({ row }) => <div>{row.getValue("documentType")}</div>,
+      },
       {
         accessorFn: (row) => row.studentId?.name || "N/A",
         id: "studentName",
@@ -258,6 +278,12 @@ export default function AdminRequestManager() {
 
   // Define filter columns for the new data table
   const filterColumns = [
+    {
+      key: "documentType",
+      title: "Document Type",
+      type: "enum",
+      values: templates.map(t => t.name),
+    },
     {
       key: "studentName",
       title: "Student Name",

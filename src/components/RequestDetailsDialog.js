@@ -30,16 +30,17 @@ export default function RequestDetailsDialog({
   onUpdate,
 }) {
   const { data: session } = useSession();
-  const [remarks, setRemarks] = useState(request?.remarks || "");
-  const [currentRemarks, setCurrentRemarks] = useState(request?.remarks || "");
+  const [remarks, setRemarks] = useState("");
+  const [currentRemarks, setCurrentRemarks] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Update remarks when request changes
   useEffect(() => {
-    setRemarks(request?.remarks || "");
-    setCurrentRemarks(request?.remarks || "");
-    setIsEditing(false);
+    if (request) {
+      setRemarks(request.remarks || "");
+      setCurrentRemarks(request.remarks || "");
+      setIsEditing(false);
+    }
   }, [request]);
 
   if (!request) return null;
@@ -64,7 +65,6 @@ export default function RequestDetailsDialog({
 
       if (!res.ok) throw new Error("Failed to update remarks");
 
-      // Update current remarks immediately to reflect the change
       setCurrentRemarks(remarks);
       setIsEditing(false);
       if (onUpdate) {
@@ -92,99 +92,73 @@ export default function RequestDetailsDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-2">
           {/* Left Column */}
           <div className="space-y-4">
             {/* Student Information */}
-            <div className="bg-gray-50 p-3 rounded-lg">
+            <div className="bg-gray-50 p-4 rounded-lg border">
               <h3 className="font-semibold text-base mb-2 text-gray-800">
                 Student Information
               </h3>
               <div className="space-y-2 text-sm">
                 <div>
-                  <span className="font-medium">Name:</span>{" "}
+                  <span className="font-medium text-gray-600">Name:</span>{" "}
                   {request.studentId?.name || "N/A"}
                 </div>
                 <div>
-                  <span className="font-medium">Roll No:</span>{" "}
+                  <span className="font-medium text-gray-600">Roll No:</span>{" "}
                   {request.studentId?.universityRollNo || "N/A"}
                 </div>
                 <div>
-                  <span className="font-medium">Department:</span>{" "}
+                  <span className="font-medium text-gray-600">Department:</span>{" "}
                   {request.studentId?.department || "N/A"}
                 </div>
               </div>
             </div>
 
             {/* Company Information */}
-            <div className="bg-blue-50 p-3 rounded-lg">
+            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
               <h3 className="font-semibold text-base mb-2 text-gray-800">
                 Company Information
               </h3>
               <div className="space-y-2 text-sm">
                 <div>
-                  <span className="font-medium">Company Name:</span>{" "}
+                  <span className="font-medium text-gray-600">Company Name:</span>{" "}
                   {request.companyName}
                 </div>
                 <div>
-                  <span className="font-medium">Contact:</span>{" "}
+                  <span className="font-medium text-gray-600">Contact:</span>{" "}
                   {request.companyContact}
                 </div>
                 <div>
-                  <span className="font-medium">Address:</span>{" "}
+                  <span className="font-medium text-gray-600">Address:</span>{" "}
                   {request.companyAddress}
                 </div>
                 {request.companyEmail && (
                   <div>
-                    <span className="font-medium">Email:</span>{" "}
+                    <span className="font-medium text-gray-600">Email:</span>{" "}
                     {request.companyEmail}
                   </div>
                 )}
               </div>
             </div>
-
-            {/* Mentor Information */}
-            {(request.mentorName ||
-              request.mentorEmail ||
-              request.mentorContact) && (
-              <div className="bg-green-50 p-3 rounded-lg">
-                <h3 className="font-semibold text-base mb-2 text-gray-800">
-                  Mentor Information
-                </h3>
-                <div className="space-y-2 text-sm">
-                  {request.mentorName && (
-                    <div>
-                      <span className="font-medium">Name:</span>{" "}
-                      {request.mentorName}
-                    </div>
-                  )}
-                  {request.mentorEmail && (
-                    <div>
-                      <span className="font-medium">Email:</span>{" "}
-                      {request.mentorEmail}
-                    </div>
-                  )}
-                  {request.mentorContact && (
-                    <div>
-                      <span className="font-medium">Contact:</span>{" "}
-                      {request.mentorContact}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Right Column */}
           <div className="space-y-4">
             {/* Request Information */}
-            <div className="bg-purple-50 p-3 rounded-lg">
+            <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
               <h3 className="font-semibold text-base mb-2 text-gray-800">
                 Request Information
               </h3>
               <div className="space-y-2 text-sm">
+                {/* **FIX: Display the populated template name** */}
                 <div>
-                  <span className="font-medium">Status:</span>
+                  <span className="font-medium text-gray-600">Document Type:</span>{" "}
+                  {request.templateId?.name || "N/A"}
+                </div>
+                <div>
+                  <span className="font-medium text-gray-600">Status:</span>
                   <span
                     className={`ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClasses(request.status)}`}
                   >
@@ -192,12 +166,12 @@ export default function RequestDetailsDialog({
                   </span>
                 </div>
                 <div>
-                  <span className="font-medium">Request Date:</span>{" "}
+                  <span className="font-medium text-gray-600">Request Date:</span>{" "}
                   {new Date(request.createdAt).toLocaleDateString()}
                 </div>
                 {request.approvedDate && (
                   <div>
-                    <span className="font-medium">Approved Date:</span>{" "}
+                    <span className="font-medium text-gray-600">Approved Date:</span>{" "}
                     {new Date(request.approvedDate).toLocaleDateString()}
                   </div>
                 )}
@@ -205,7 +179,7 @@ export default function RequestDetailsDialog({
             </div>
 
             {/* Remarks Section */}
-            <div className="bg-yellow-50 p-3 rounded-lg">
+            <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
               <div className="flex justify-between items-center mb-2">
                 <h3 className="font-semibold text-base text-gray-800">
                   Admin Remarks

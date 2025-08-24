@@ -1,4 +1,3 @@
-// src/app/api/requests/route.js
 
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]/route";
@@ -6,6 +5,7 @@ import dbConnect from "@/lib/dbConnect";
 import CertificateRequest from "@/models/CertificateRequest";
 import User from "@/models/User";
 import { NextResponse } from "next/server";
+
 
 export async function GET(request) {
   const session = await getServerSession(authOptions);
@@ -19,7 +19,18 @@ export async function GET(request) {
 
   try {
     if (userRole === 'student') {
-      const requests = await CertificateRequest.find({ studentId: userId }).sort({ createdAt: -1 });
+      // **FIX: Add .populate() here to include student details**
+      const requests = await CertificateRequest.find({ studentId: userId })
+        .populate({
+          path: 'studentId',
+          select: 'name universityRollNo department'
+        })
+        .populate({
+          path: 'templateId',
+          select: 'name'
+        })
+        .sort({ createdAt: -1 });
+      
       return NextResponse.json(requests, { status: 200 });
     } 
     
@@ -31,6 +42,10 @@ export async function GET(request) {
           model: User,
           match: { department: adminDepartment },
           select: 'name universityRollNo department'
+        })
+        .populate({
+          path: 'templateId',
+          select: 'name'
         })
         .sort({ createdAt: -1 });
       
