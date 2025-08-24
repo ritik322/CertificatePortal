@@ -19,7 +19,6 @@ export async function GET(request) {
 
   try {
     if (userRole === 'student') {
-      // **FIX: Add .populate() here to include student details**
       const requests = await CertificateRequest.find({ studentId: userId })
         .populate({
           path: 'studentId',

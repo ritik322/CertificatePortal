@@ -16,6 +16,7 @@ export async function POST(request) {
       department,
       universityRollNo,
       collegeRollNo,
+      contact
     } = body;
 
     const username = universityRollNo;
@@ -35,9 +36,10 @@ export async function POST(request) {
     const newUser = new User({
       name,
       username,
+      contact,
       email,
       password: hashedPassword,
-      department,
+      department: department.toLowerCase(),
       universityRollNo,
       collegeRollNo,
       role: "student",
@@ -50,6 +52,7 @@ export async function POST(request) {
       { status: 201 }
     );
   } catch (error) {
+    console.log(error)
     return NextResponse.json(
       { message: "An error occurred", error: error.message },
       { status: 500 }

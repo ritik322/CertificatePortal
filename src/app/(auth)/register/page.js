@@ -14,6 +14,7 @@ export default function RegisterPage() {
     department: "",
     universityRollNo: "",
     collegeRollNo: "",
+    contact: "",
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -104,7 +105,7 @@ export default function RegisterPage() {
               className="w-full px-4 py-2 bg-gray-50 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
-          <div className="md:col-span-2">
+          <div className="md:col-span-1">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Email Address
             </label>
@@ -112,6 +113,19 @@ export default function RegisterPage() {
               name="email"
               type="email"
               placeholder="doe@gmail.com"
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-2 bg-gray-50 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+          <div className="md:col-span-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Mobile Number
+            </label>
+            <input
+              name="contact"
+              type="number"
+              placeholder="1234567890"
               onChange={handleChange}
               required
               className="w-full px-4 py-2 bg-gray-50 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"

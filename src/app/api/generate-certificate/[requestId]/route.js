@@ -39,6 +39,7 @@ export async function GET(request, { params }) {
       fields: {
         name: student.name,
         email: student.email,
+        contact: student.contact,
         universityrollno: student.universityRollNo,
         collegerollno: student.collegeRollNo,
         branch: student.department.toUpperCase(),
