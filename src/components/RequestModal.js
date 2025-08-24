@@ -14,6 +14,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Loader from "./Loader";
+import BigButton from "./ui/big-button";
+import { PlusIcon } from "@heroicons/react/24/solid";
 
 export default function RequestModal({ user, onSuccess }) {
   const [open, setOpen] = useState(false);
@@ -26,6 +28,9 @@ export default function RequestModal({ user, onSuccess }) {
     companyAddress: "",
     companyEmail: "",
     companyContact: "",
+    mentorName: "",
+    mentorEmail: "",
+    mentorContact: "",
   });
 
   useEffect(() => {
@@ -34,7 +39,7 @@ export default function RequestModal({ user, onSuccess }) {
         try {
           // Fetch templates filtered by the student's department
           const res = await fetch(
-            `/api/templates?department=${user.department}`
+            `/api/templates?department=${user.department}`,
           );
           const data = await res.json();
           if (res.ok) setTemplates(data);
@@ -77,6 +82,9 @@ export default function RequestModal({ user, onSuccess }) {
         companyAddress: "",
         companyEmail: "",
         companyContact: "",
+        mentorName: "",
+        mentorEmail: "",
+        mentorContact: "",
       });
       setOpen(false);
     } catch (err) {
@@ -89,11 +97,13 @@ export default function RequestModal({ user, onSuccess }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          className={"bg-indigo-500 hover:bg-indigo-600 hover:cursor-pointer"}
+        <BigButton
+          icon={PlusIcon}
+          variant="primary"
+          //className={"bg-indigo-500 hover:bg-indigo-600 hover:cursor-pointer text-foreground"}
         >
           New Request
-        </Button>
+        </BigButton>
       </DialogTrigger>
       <DialogContent className="sm:max-w-xl text-black">
         <DialogHeader>
@@ -132,16 +142,31 @@ export default function RequestModal({ user, onSuccess }) {
               ))}
             </select>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="companyName">Company Name</Label>
-            <Input
-              id="companyName"
-              name="companyName"
-              value={formData.companyName}
-              onChange={handleChange}
-              required
-            />
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="companyName">Company Name</Label>
+              <Input
+                id="companyName"
+                name="companyName"
+                value={formData.companyName}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="companyContact">Company Contact No.</Label>
+              <Input
+                id="companyContact"
+                name="companyContact"
+                type="tel"
+                value={formData.companyContact}
+                onChange={handleChange}
+                required
+              />
+            </div>
           </div>
+
           <div className="space-y-2">
             <Label htmlFor="companyAddress">Company Address</Label>
             <Input
@@ -152,6 +177,7 @@ export default function RequestModal({ user, onSuccess }) {
               required
             />
           </div>
+
           <div className="space-y-2">
             <Label htmlFor="companyEmail">Company Email (Optional)</Label>
             <Input
@@ -162,15 +188,37 @@ export default function RequestModal({ user, onSuccess }) {
               onChange={handleChange}
             />
           </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="mentorName">Mentor Name (Optional)</Label>
+              <Input
+                id="mentorName"
+                name="mentorName"
+                value={formData.mentorName}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="mentorContact">Mentor Contact (Optional)</Label>
+              <Input
+                id="mentorContact"
+                name="mentorContact"
+                type="tel"
+                value={formData.mentorContact}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+
           <div className="space-y-2">
-            <Label htmlFor="companyContact">Company Contact No.</Label>
+            <Label htmlFor="mentorEmail">Mentor Email (Optional)</Label>
             <Input
-              id="companyContact"
-              name="companyContact"
-              type="tel"
-              value={formData.companyContact}
+              id="mentorEmail"
+              name="mentorEmail"
+              type="email"
+              value={formData.mentorEmail}
               onChange={handleChange}
-              required
             />
           </div>
           {error && <p className="text-red-600 text-sm text-center">{error}</p>}

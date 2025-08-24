@@ -53,7 +53,7 @@ export async function POST(request) {
   await dbConnect();
   
   try {
-    const { templateId, companyName, companyAddress, companyEmail, companyContact } = await request.json();
+    const { templateId, companyName, companyAddress, companyEmail, companyContact, mentorName, mentorEmail, mentorContact } = await request.json();
     if (!templateId || !companyName || !companyAddress ||  !companyContact) {
       return NextResponse.json({ message: "All fields are required" }, { status: 400 });
     }
@@ -65,6 +65,9 @@ export async function POST(request) {
       companyAddress,
       companyEmail,
       companyContact,
+      mentorName,
+      mentorEmail,
+      mentorContact,
     });
 
     await newRequest.save();

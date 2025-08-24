@@ -2,26 +2,36 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { DataTable } from "./data-table";
-import { columns as studentColumnsDefinition } from "./columns";
+import { DataTable } from "./ui/data-table";
+import { DataTableColumnHeader } from "./ui/data-table/data-table-column-header";
 import RequestModal from "./RequestModal";
+import RequestDetailsDialog from "./RequestDetailsDialog";
+import { Button } from "@/components/ui/button";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Input } from "./ui/input";
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Clock } from "lucide-react";
+import Link from "next/link";
+
+const getStatusClasses = (status) => {
+  switch (status) {
+    case "Approved":
+      return "bg-green-100 text-green-800";
+    case "Rejected":
+      return "bg-red-100 text-red-800";
+    default:
+      return "bg-yellow-100 text-yellow-800";
+  }
+};
 
 export default function CertificateManager() {
   const [requests, setRequests] = useState([]);
-  const [selectedRemark, setSelectedRemark] = useState("");
-  const [isRemarkDialogOpen, setIsRemarkDialogOpen] = useState(false);
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
+  const [selectedDetailsRequest, setSelectedDetailsRequest] = useState(null);
   const { data: session } = useSession();
-  const [filter, setFilter] = useState("");
-
 
   const fetchRequests = async () => {
     const res = await fetch("/api/requests");
@@ -35,21 +45,209 @@ export default function CertificateManager() {
     fetchRequests();
   }, []);
 
-
-  const handleViewRemark = (remark) => {
-    setSelectedRemark(remark);
-    setIsRemarkDialogOpen(true);
+  const handleRowClick = (request) => {
+    setSelectedDetailsRequest(request);
+    setIsDetailsDialogOpen(true);
   };
 
-  const columns = studentColumnsDefinition.map((col) => {
-    if (col.accessorKey === "remarks") {
-      return { ...col, meta: { onView: handleViewRemark } };
-    }
-    return col;
-  });
+  // Define columns for the new data table
+  const columns = [
+    {
+      accessorKey: "companyName",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Company Name" />
+      ),
+      cell: ({ row }) => (
+        <div className="font-medium">{row.getValue("companyName")}</div>
+      ),
+    },
+    {
+      accessorKey: "companyAddress",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Company Address" />
+      ),
+      cell: ({ row }) => (
+        <div className="max-w-xs truncate">
+          {row.getValue("companyAddress")}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "companyContact",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Contact" />
+      ),
+      cell: ({ row }) => <div>{row.getValue("companyContact")}</div>,
+    },
+    {
+      accessorKey: "mentorName",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Mentor Name" />
+      ),
+      cell: ({ row }) => {
+        const mentorName = row.getValue("mentorName");
+        return <div>{mentorName || "-"}</div>;
+      },
+    },
+    {
+      accessorKey: "mentorEmail",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Mentor Email" />
+      ),
+      cell: ({ row }) => {
+        const mentorEmail = row.getValue("mentorEmail");
+        return <div>{mentorEmail || "-"}</div>;
+      },
+    },
+    {
+      accessorKey: "mentorContact",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Mentor Contact" />
+      ),
+      cell: ({ row }) => {
+        const mentorContact = row.getValue("mentorContact");
+        return <div>{mentorContact || "-"}</div>;
+      },
+    },
+    {
+      accessorKey: "status",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Status" />
+      ),
+      cell: ({ row }) => {
+        const status = row.getValue("status");
+        return (
+          <span
+            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClasses(status)}`}
+          >
+            {status}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: "approvedDate",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Approved Date" />
+      ),
+      cell: ({ row }) => {
+        const approvedDate = row.getValue("approvedDate");
+        if (!approvedDate) {
+          return <div className="text-gray-400">-</div>;
+        }
+        return <div>{new Date(approvedDate).toLocaleDateString()}</div>;
+      },
+    },
+    {
+      accessorKey: "createdAt",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Request Date" />
+      ),
+      cell: ({ row }) => {
+        const createdAt = row.getValue("createdAt");
+        return <div>{new Date(createdAt).toLocaleDateString()}</div>;
+      },
+    },
+    {
+      id: "actions",
+      header: () => <div className="text-center">Action</div>,
+      cell: ({ row }) => {
+        const request = row.original;
+
+        if (request.status === "Approved") {
+          return (
+            <div className="text-center">
+              <Link
+                href={`/api/generate-certificate/${request._id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="hover:bg-indigo-600 hover:text-white"
+                >
+                  Download
+                </Button>
+              </Link>
+            </div>
+          );
+        }
+
+        if (request.status === "Pending") {
+          return (
+            <div className="text-center">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="flex justify-center">
+                      <Clock className="h-5 w-5 text-gray-400" />
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Awaiting Approval</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          );
+        }
+
+        return <div className="text-center text-sm text-gray-500">-</div>;
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
+  ];
+
+  // Define filter columns for the new data table
+  const filterColumns = [
+    {
+      key: "companyName",
+      title: "Company Name",
+      type: "string",
+    },
+    {
+      key: "companyAddress",
+      title: "Company Address",
+      type: "string",
+    },
+    {
+      key: "mentorName",
+      title: "Mentor Name",
+      type: "string",
+    },
+    {
+      key: "mentorEmail",
+      title: "Mentor Email",
+      type: "string",
+    },
+    {
+      key: "status",
+      title: "Status",
+      type: "enum",
+      values: ["Pending", "Approved", "Rejected"],
+    },
+    {
+      key: "createdAt",
+      title: "Request Date",
+      type: "date",
+    },
+    {
+      key: "approvedDate",
+      title: "Approved Date",
+      type: "date",
+    },
+  ];
+
+  const handleAdd = async () => {
+    // The RequestModal will handle the actual add functionality
+    // This is just to satisfy the DataTable's onAdd prop if needed
+  };
 
   return (
-    <div className=" rounded-lg  p-6">
+    <div className="rounded-lg p-6">
       <div className="mb-8">
         <h2 className="text-lg font-semibold text-gray-900">Your Requests</h2>
         <p className="mt-1 text-sm text-gray-600">
@@ -57,36 +255,37 @@ export default function CertificateManager() {
         </p>
       </div>
 
-      <div className="flex justify-between items-center mb-4">
-        <div>
-          <Input
-            placeholder="Search...."
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="max-w-sm bg-white"
-          />
-        </div>
-        {session && (
-          <RequestModal user={session.user} onSuccess={fetchRequests} />
-        )}
-      </div>
+      <DataTable
+        columns={columns}
+        data={requests}
+        filterColumns={filterColumns}
+        enableSelection={false}
+        exportFileName="certificate-requests"
+        onRowClick={handleRowClick}
+        onRefresh={fetchRequests}
+        toolbarItems={[
+          session && (
+            <RequestModal
+              key="add-request"
+              user={session.user}
+              onSuccess={fetchRequests}
+            />
+          ),
+        ]}
+        initialColumnVisibility={{
+          companyAddress: false,
+          companyContact: false,
+          mentorName: false,
+          mentorEmail: false,
+          mentorContact: false,
+        }}
+      />
 
-      <DataTable columns={columns} data={requests} />
-
-      <AlertDialog
-        open={isRemarkDialogOpen}
-        onOpenChange={setIsRemarkDialogOpen}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className={"text-black"}>
-              Admin Remarks
-            </AlertDialogTitle>
-            <AlertDialogDescription>{selectedRemark}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogAction>Close</AlertDialogAction>
-        </AlertDialogContent>
-      </AlertDialog>
+      <RequestDetailsDialog
+        isOpen={isDetailsDialogOpen}
+        setIsOpen={setIsDetailsDialogOpen}
+        request={selectedDetailsRequest}
+      />
     </div>
   );
 }
