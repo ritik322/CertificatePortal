@@ -14,7 +14,6 @@ export default function TemplateManager({ session }) {
 
   const fetchTemplates = async () => {
     try {
-      // Fetch only the templates for the logged-in admin's department
       const res = await fetch(`/api/templates?department=${session.user.department}`);
       if (!res.ok) throw new Error("Failed to fetch templates.");
       const data = await res.json();
@@ -28,7 +27,7 @@ export default function TemplateManager({ session }) {
     if (session) {
         fetchTemplates();
     }
-  }, [session]);
+  }, [session,fetchTemplates]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
