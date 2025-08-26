@@ -3,7 +3,7 @@
 import { useSession, signOut } from "next-auth/react";
 import { useEffect } from "react";
 import AdminRequestManager from "@/components/AdminRequestManager";
-import TemplateManagerModal from "@/components/TemplateManagerModal"; // Import the new modal
+
 import Loader from "@/components/Loader";
 import { useRouter } from "next/navigation";
 

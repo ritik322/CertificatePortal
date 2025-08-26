@@ -49,7 +49,7 @@ export default function RequestDetailsDialog({
   const isPending = request.status === "Pending";
 
   const handleSaveRemarks = async () => {
-    if (!isAdmin || !isPending) return;
+    if (!isAdmin) return;
 
     setIsSubmitting(true);
     try {
@@ -173,13 +173,13 @@ export default function RequestDetailsDialog({
               </div>
             </div>
 
-            {/* Remarks Section */}
-            <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                        <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
               <div className="flex justify-between items-center mb-2">
                 <h3 className="font-semibold text-base text-gray-800">
                   Admin Remarks
                 </h3>
-                {isAdmin && isPending && (
+                {/* **FIX:** The button now only checks if the user is an admin */}
+                {isAdmin && (
                   <div className="space-x-2">
                     {isEditing ? (
                       <>

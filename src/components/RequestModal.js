@@ -75,7 +75,7 @@ export default function RequestModal({ user, onSuccess }) {
         <BigButton
           icon={PlusIcon}
           variant="primary"
-          //className={"bg-indigo-500 hover:bg-indigo-600 hover:cursor-pointer text-foreground"}
+          // className={"bg-indigo-500 hover:bg-indigo-600 hover:cursor-pointer text-foreground"}
         >
           New Request
         </BigButton>
@@ -96,9 +96,6 @@ export default function RequestModal({ user, onSuccess }) {
               <span className="font-semibold">Roll No:</span> {user.username}
             </div>
           </div>
-
-          
-
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="companyName">Company Name</Label>
@@ -135,7 +132,7 @@ export default function RequestModal({ user, onSuccess }) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="companyEmail">Company Email (Optional)</Label>
+            <Label htmlFor="companyEmail">Company Email</Label>
             <Input
               id="companyEmail"
               name="companyEmail"
@@ -147,17 +144,19 @@ export default function RequestModal({ user, onSuccess }) {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="mentorName">Mentor Name (Optional)</Label>
+              <Label htmlFor="mentorName">Mentor Name</Label>
               <Input
                 id="mentorName"
                 name="mentorName"
                 value={formData.mentorName}
                 onChange={handleChange}
+                required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="mentorContact">Mentor Contact (Optional)</Label>
+              <Label htmlFor="mentorContact">Mentor Contact</Label>
               <Input
+                required
                 id="mentorContact"
                 name="mentorContact"
                 type="tel"
@@ -168,7 +167,7 @@ export default function RequestModal({ user, onSuccess }) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="mentorEmail">Mentor Email (Optional)</Label>
+            <Label htmlFor="mentorEmail">Mentor Email </Label>
             <Input
               id="mentorEmail"
               name="mentorEmail"

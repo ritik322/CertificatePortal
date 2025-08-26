@@ -12,7 +12,6 @@ export default function AdminActionModal({ isOpen, setIsOpen, request, onUpdate 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // This useEffect correctly updates the remarks when the selected request changes
   useEffect(() => {
     if (request) {
       setRemarks(request.remarks || "");
