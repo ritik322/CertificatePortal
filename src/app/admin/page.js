@@ -38,7 +38,6 @@ export default function AdminPage() {
             <div className="flex justify-between items-center h-16">
               <h1 className="text-xl font-bold text-gray-800">Welcome, {session.user.name}</h1>
               <div className="flex items-center space-x-4">
-                <TemplateManagerModal /> {/* Add the modal button here */}
                 <button
                     onClick={() => signOut({ callbackUrl: '/' })}
                     className="px-4 py-2 text-sm font-medium rounded-md shadow-sm bg-indigo-500 text-white hover:cursor-pointer hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"

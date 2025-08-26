@@ -32,7 +32,6 @@ export default function CertificateManager() {
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const [selectedDetailsRequest, setSelectedDetailsRequest] = useState(null);
   const { data: session } = useSession();
-  const [templates, setTemplates] = useState([]);
 
   const fetchRequests = async () => {
     const res = await fetch("/api/requests");
@@ -41,17 +40,9 @@ export default function CertificateManager() {
       setRequests(data);
     }
   };
-  const fetchTemplates = async () => {
-    const res = await fetch("/api/templates");
-    if (res.ok) {
-      const data = await res.json();
-      setTemplates(data);
-    }
-  };
 
   useEffect(() => {
     fetchRequests();
-    fetchTemplates()
   }, []);
 
   const handleRowClick = (request) => {
@@ -61,14 +52,6 @@ export default function CertificateManager() {
 
   // Define columns for the new data table
   const columns = [
-    {
-      accessorFn: row => row.templateId?.name,
-      id: 'documentType',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Document Type" />
-      ),
-      cell: ({ row }) => <div>{row.original.templateId?.name || "-"}</div>,
-    },
     {
       accessorKey: "companyName",
       header: ({ column }) => (

@@ -16,7 +16,6 @@ export async function GET(request, { params }) {
 
   try {
     const certRequest = await CertificateRequest.findById(requestId)
-      .populate("templateId")
       .populate("studentId"); 
 
     if (!certRequest) {
@@ -32,10 +31,8 @@ export async function GET(request, { params }) {
     }
 
     const student = certRequest.studentId; 
-    const templateId = certRequest.templateId.templateId;
 
     const payload = {
-      templateId: templateId,
       fields: {
         name: student.name,
         email: student.email,
@@ -43,6 +40,7 @@ export async function GET(request, { params }) {
         universityrollno: student.universityRollNo,
         collegerollno: student.collegeRollNo,
         branch: student.department.toUpperCase(),
+        mentorname: certRequest.mentorName,
         companyname: certRequest.companyName,
         companyaddress: certRequest.companyAddress,
         companyemail: certRequest.companyEmail || "",

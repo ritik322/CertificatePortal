@@ -24,10 +24,6 @@ export async function GET(request) {
           path: 'studentId',
           select: 'name universityRollNo department'
         })
-        .populate({
-          path: 'templateId',
-          select: 'name'
-        })
         .sort({ createdAt: -1 });
       
       return NextResponse.json(requests, { status: 200 });
@@ -41,10 +37,6 @@ export async function GET(request) {
           model: User,
           match: { department: adminDepartment },
           select: 'name universityRollNo department'
-        })
-        .populate({
-          path: 'templateId',
-          select: 'name'
         })
         .sort({ createdAt: -1 });
       
@@ -67,14 +59,13 @@ export async function POST(request) {
   await dbConnect();
   
   try {
-    const { templateId, companyName, companyAddress, companyEmail, companyContact, mentorName, mentorEmail, mentorContact } = await request.json();
-    if (!templateId || !companyName || !companyAddress ||  !companyContact) {
+    const {  companyName, companyAddress, companyEmail, companyContact, mentorName, mentorEmail, mentorContact } = await request.json();
+    if ( !companyName || !companyAddress ||  !companyContact) {
       return NextResponse.json({ message: "All fields are required" }, { status: 400 });
     }
 
     const newRequest = new CertificateRequest({
       studentId: session.user.id,
-      templateId, // Save the selected template ID
       companyName,
       companyAddress,
       companyEmail,

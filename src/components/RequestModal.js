@@ -21,9 +21,7 @@ export default function RequestModal({ user, onSuccess }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [templates, setTemplates] = useState([]);
   const [formData, setFormData] = useState({
-    templateId: "",
     companyName: "",
     companyAddress: "",
     companyEmail: "",
@@ -33,24 +31,6 @@ export default function RequestModal({ user, onSuccess }) {
     mentorContact: "",
   });
 
-  useEffect(() => {
-    if (open && user?.department) {
-      const fetchTemplates = async () => {
-        try {
-          // Fetch templates filtered by the student's department
-          const res = await fetch(
-            `/api/templates?department=${user.department}`,
-          );
-          const data = await res.json();
-          if (res.ok) setTemplates(data);
-          else throw new Error("Failed to load templates.");
-        } catch (err) {
-          setError(err.message);
-        }
-      };
-      fetchTemplates();
-    }
-  }, [open, user]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -59,10 +39,6 @@ export default function RequestModal({ user, onSuccess }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.templateId) {
-      setError("Please select a document type.");
-      return;
-    }
     setLoading(true);
     setError("");
     try {
@@ -77,7 +53,6 @@ export default function RequestModal({ user, onSuccess }) {
       }
       onSuccess();
       setFormData({
-        templateId: "",
         companyName: "",
         companyAddress: "",
         companyEmail: "",
@@ -122,26 +97,7 @@ export default function RequestModal({ user, onSuccess }) {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="templateId">Document Type</Label>
-            <select
-              id="templateId"
-              name="templateId"
-              value={formData.templateId}
-              onChange={handleChange}
-              required
-              className="w-full h-10 px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500"
-            >
-              <option value="" disabled>
-                Select a document...
-              </option>
-              {templates.map((t) => (
-                <option key={t._id} value={t._id}>
-                  {t.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">

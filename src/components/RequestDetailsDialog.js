@@ -152,11 +152,6 @@ export default function RequestDetailsDialog({
                 Request Information
               </h3>
               <div className="space-y-2 text-sm">
-                {/* **FIX: Display the populated template name** */}
-                <div>
-                  <span className="font-medium text-gray-600">Document Type:</span>{" "}
-                  {request.templateId?.name || "N/A"}
-                </div>
                 <div>
                   <span className="font-medium text-gray-600">Status:</span>
                   <span
