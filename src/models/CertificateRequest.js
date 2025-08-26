@@ -12,6 +12,7 @@ const CertificateRequestSchema = new mongoose.Schema({
   status: { type: String, enum: ['Pending', 'Approved', 'Rejected'], default: 'Pending' },
   approvedDate: { type: Date }, 
   remarks: { type: String },
+  refNo: { type: String }
 }, { timestamps: true });
 
 export default mongoose.models.CertificateRequest || mongoose.model('CertificateRequest', CertificateRequestSchema);

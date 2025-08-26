@@ -34,6 +34,7 @@ export async function GET(request, { params }) {
 
     const payload = {
       fields: {
+        refno: certRequest.refNo || "",
         name: student.name,
         email: student.email || "",
         contact: student.contact || "",

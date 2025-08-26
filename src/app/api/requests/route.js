@@ -99,6 +99,9 @@ export async function PATCH(request) {
     const updateData = { status, remarks }; 
     if (status === 'Approved') {
       updateData.approvedDate = new Date();
+      const year = new Date().getFullYear();
+      const uniqueIdPart = requestId.slice(-6).toUpperCase();
+      updateData.refNo = `${year}/${uniqueIdPart}`;
     }
 
     const updatedRequest = await CertificateRequest.findByIdAndUpdate(
