@@ -35,16 +35,16 @@ export async function GET(request, { params }) {
     const payload = {
       fields: {
         name: student.name,
-        email: student.email,
-        contact: student.contact,
-        universityrollno: student.universityRollNo,
-        collegerollno: student.collegeRollNo,
-        branch: student.department.toUpperCase(),
-        mentorname: certRequest.mentorName,
-        companyname: certRequest.companyName,
-        companyaddress: certRequest.companyAddress,
+        email: student.email || "",
+        contact: student.contact || "",
+        universityrollno: student.universityRollNo || "",
+        collegerollno: student.collegeRollNo || "",
+        branch: student.department.toUpperCase() || "",
+        mentorname: certRequest.mentorName || "",
+        companyname: certRequest.companyName || "",
+        companyaddress: certRequest.companyAddress || "",
         companyemail: certRequest.companyEmail || "",
-        companycontact: certRequest.companyContact,
+        companycontact: certRequest.companyContact || "",
         approveddate: certRequest.approvedDate
           ? new Date(certRequest.approvedDate).toLocaleDateString()
           : "",
