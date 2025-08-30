@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import Loader from "@/components/Loader";
 
 export default function RegisterPage() {
@@ -21,7 +20,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  const departments = ["CSE", "IT", "ECE", "Mechanical", "Civil", "Electrical"];
+  const departments = ["CSE", "IT", "ECE", "ME", "CE", "EE"];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
