@@ -275,7 +275,7 @@ export function DataTableFilters({
                                 className="w-full justify-start text-left font-normal"
                               >
                                 {filter.value
-                                  ? filter.value.toLocaleDateString()
+                                  ? filter.value.toLocaleDateString('en-GB')
                                   : "Select date"}
                               </Button>
                             </PopoverTrigger>

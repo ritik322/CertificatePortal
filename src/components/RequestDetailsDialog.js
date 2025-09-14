@@ -46,7 +46,6 @@ export default function RequestDetailsDialog({
   if (!request) return null;
 
   const isAdmin = session?.user?.role === "admin";
-  const isPending = request.status === "Pending";
 
   const handleSaveRemarks = async () => {
     if (!isAdmin) return;
@@ -162,12 +161,16 @@ export default function RequestDetailsDialog({
                 </div>
                 <div>
                   <span className="font-medium text-gray-600">Request Date:</span>{" "}
-                  {new Date(request.createdAt).toLocaleDateString()}
+                  {new Date(request.createdAt).toLocaleDateString('en-GB')}
+                </div>
+                <div>
+                  <span className="font-medium text-gray-600">Request Type:</span>{" "}
+                  {request.trainingType}
                 </div>
                 {request.approvedDate && (
                   <div>
                     <span className="font-medium text-gray-600">Approved Date:</span>{" "}
-                    {new Date(request.approvedDate).toLocaleDateString()}
+                    {new Date(request.approvedDate).toLocaleDateString('en-GB')}
                   </div>
                 )}
               </div>

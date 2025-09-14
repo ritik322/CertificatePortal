@@ -59,7 +59,7 @@ export async function POST(request) {
   await dbConnect();
   
   try {
-    const {  companyName, companyAddress, companyEmail, companyContact, mentorName, mentorEmail, mentorContact } = await request.json();
+    const {  companyName, companyAddress, companyEmail, companyContact, mentorName, trainingType, mentorEmail, mentorContact } = await request.json();
     if ( !companyName || !companyAddress ||  !companyContact) {
       return NextResponse.json({ message: "All fields are required" }, { status: 400 });
     }
@@ -68,6 +68,7 @@ export async function POST(request) {
       studentId: session.user.id,
       companyName,
       companyAddress,
+      trainingType,
       companyEmail,
       companyContact,
       mentorName,
@@ -91,7 +92,7 @@ export async function PATCH(request) {
   await dbConnect();
 
   try {
-    const { requestId, status, remarks } = await request.json(); // Destructure remarks
+    const { requestId, status, remarks } = await request.json(); 
     if (!requestId || !status) {
       return NextResponse.json({ message: "Request ID and status are required" }, { status: 400 });
     }

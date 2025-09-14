@@ -5,6 +5,8 @@ import { DataTable } from "./ui/data-table";
 import { DataTableColumnHeader } from "./ui/data-table/data-table-column-header";
 import RequestDetailsDialog from "./RequestDetailsDialog";
 import { Button } from "@/components/ui/button";
+import trainingOptions from "@/constants/TrainingOptions";
+import Link from "next/link";
 
 const getStatusClasses = (status) => {
   switch (status) {
@@ -17,11 +19,13 @@ const getStatusClasses = (status) => {
   }
 };
 
+
 export default function AdminRequestManager() {
   const [requests, setRequests] = useState([]);
   const [error, setError] = useState("");
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const [selectedDetailsRequest, setSelectedDetailsRequest] = useState(null);
+  const [downloadingId, setDownloadingId] = useState(null);
  
   const fetchRequests = useCallback(async () => {
     try {
@@ -61,8 +65,11 @@ export default function AdminRequestManager() {
     setSelectedDetailsRequest(request);
     setIsDetailsDialogOpen(true);
   };
+  const handleDownloadClick = (requestId) => {
+    setDownloadingId(requestId);
+    setTimeout(() => setDownloadingId(null), 6000);
+  };
 
-  // Define columns for the new data table
   const columns = useMemo(
     () => [
       {
@@ -93,6 +100,15 @@ export default function AdminRequestManager() {
         ),
         cell: ({ row }) => <div>{row.getValue("department")}</div>,
       },
+      {
+      accessorKey: "trainingType",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Training Type" />
+      ),
+      cell: ({ row }) => (
+        <div>{row.getValue("trainingType")}</div>
+      ),
+    },
       {
         accessorKey: "companyName",
         header: ({ column }) => (
@@ -173,7 +189,7 @@ export default function AdminRequestManager() {
         ),
         cell: ({ row }) => {
           const createdAt = row.getValue("createdAt");
-          return <div>{new Date(createdAt).toLocaleDateString()}</div>;
+          return <div>{new Date(createdAt).toLocaleDateString('en-GB')}</div>;
         },
       },
       {
@@ -186,7 +202,7 @@ export default function AdminRequestManager() {
           if (!approvedDate) {
             return <div className="text-gray-400">-</div>;
           }
-          return <div>{new Date(approvedDate).toLocaleDateString()}</div>;
+          return <div>{new Date(approvedDate).toLocaleDateString('en-GB')}</div>;
         },
       },
       {
@@ -194,25 +210,33 @@ export default function AdminRequestManager() {
         header: () => <div className="text-center">Actions</div>,
         cell: ({ row }) => {
           const request = row.original;
+          const isDownloading = downloadingId === request._id;
 
           if (request.status === "Approved") {
             return (
-              <div className="text-center space-x-2">
+              <div className="text-center ">
+                <Link
+                href={`/api/generate-certificate/${request._id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => {
+                  if (isDownloading) {
+                    e.preventDefault();
+                  } else {
+                    handleDownloadClick(request._id);
+                  }
+                  e.stopPropagation();
+                }}
+              >
                 <Button
-                  asChild
                   variant="outline"
                   size="sm"
                   className="hover:bg-indigo-600 hover:text-white"
-                  onClick={(e) => e.stopPropagation()}
+                  disabled={isDownloading}
                 >
-                  <a
-                    href={`/api/generate-certificate/${request._id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Download
-                  </a>
+                  {isDownloading ? "Downloading..." : "Download"}
                 </Button>
+              </Link>
               </div>
             );
           }
@@ -257,7 +281,6 @@ export default function AdminRequestManager() {
     [handleUpdateStatus],
   );
 
-  // Define filter columns for the new data table
   const filterColumns = [
     
     {
@@ -274,6 +297,12 @@ export default function AdminRequestManager() {
       key: "department",
       title: "Department",
       type: "string",
+    },
+    {
+        key: "trainingType",
+        title: "Training Type",
+        type: "enum",
+        values: trainingOptions,
     },
     {
       key: "companyName",

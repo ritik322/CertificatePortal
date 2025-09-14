@@ -7,7 +7,7 @@ import { NextResponse } from "next/server";
 
 export async function GET(request, { params }) {
   const session = await getServerSession(authOptions);
-  if (!session) { // Simplified authorization check
+  if (!session) { 
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
@@ -45,9 +45,10 @@ export async function GET(request, { params }) {
         companyname: certRequest.companyName || "",
         companyaddress: certRequest.companyAddress || "",
         companyemail: certRequest.companyEmail || "",
+        trainingtype: certRequest.trainingType || "",
         companycontact: certRequest.companyContact || "",
         approveddate: certRequest.approvedDate
-          ? new Date(certRequest.approvedDate).toLocaleDateString()
+          ? new Date(certRequest.approvedDate).toLocaleDateString('en-GB')
           : "",
       },
     };

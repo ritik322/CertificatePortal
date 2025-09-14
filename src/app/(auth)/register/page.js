@@ -20,7 +20,19 @@ export default function RegisterPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  const departments = ["CSE", "IT", "ECE", "ME", "CE", "EE"];
+  const departments = [
+    "CSE",
+    "IT",
+    "ECE",
+    "ME",
+    "CE",
+    "EE",
+    "MCA",
+    "BBA",
+    "B.Arch",
+    "BCA",
+    "MBA",
+  ];
 
   const handleChange = (e) => {
     const { name, value } = e.target;

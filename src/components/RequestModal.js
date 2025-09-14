@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,15 +13,25 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import Loader from "./Loader";
 import BigButton from "./ui/big-button";
 import { PlusIcon } from "@heroicons/react/24/solid";
+import trainingOptions from "@/constants/TrainingOptions";
+
 
 export default function RequestModal({ user, onSuccess }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
+    trainingType: "", 
     companyName: "",
     companyAddress: "",
     companyEmail: "",
@@ -31,14 +41,21 @@ export default function RequestModal({ user, onSuccess }) {
     mentorContact: "",
   });
 
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+  
+  const handleSelectChange = (value) => {
+    setFormData((prev) => ({ ...prev, trainingType: value }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.trainingType) {
+        setError("Please select a training type.");
+        return;
+    }
     setLoading(true);
     setError("");
     try {
@@ -52,7 +69,8 @@ export default function RequestModal({ user, onSuccess }) {
         throw new Error(data.message);
       }
       onSuccess();
-      setFormData({
+      setFormData({ 
+        trainingType: "",
         companyName: "",
         companyAddress: "",
         companyEmail: "",
@@ -75,7 +93,6 @@ export default function RequestModal({ user, onSuccess }) {
         <BigButton
           icon={PlusIcon}
           variant="primary"
-          // className={"bg-indigo-500 hover:bg-indigo-600 hover:cursor-pointer text-foreground"}
         >
           New Request
         </BigButton>
@@ -96,6 +113,20 @@ export default function RequestModal({ user, onSuccess }) {
               <span className="font-semibold">Roll No:</span> {user.username}
             </div>
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="trainingType">Training Type</Label>
+            <Select onValueChange={handleSelectChange} value={formData.trainingType}>
+                <SelectTrigger id="trainingType">
+                    <SelectValue placeholder="Select a training type..." />
+                </SelectTrigger>
+                <SelectContent>
+                    {trainingOptions.map(option => (
+                        <SelectItem key={option} value={option}>{option}</SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="companyName">Company Name</Label>

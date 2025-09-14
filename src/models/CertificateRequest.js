@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 const CertificateRequestSchema = new mongoose.Schema({
   studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  trainingType: { type: String, required: true },
   companyName: { type: String, required: true },
   companyAddress: { type: String, required: true },
   companyEmail: { type: String, required: false },

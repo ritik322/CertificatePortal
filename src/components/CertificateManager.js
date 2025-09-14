@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Clock } from "lucide-react";
 import Link from "next/link";
+import trainingOptions from "@/constants/TrainingOptions";
 
 const getStatusClasses = (status) => {
   switch (status) {
@@ -32,6 +33,7 @@ export default function CertificateManager() {
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const [selectedDetailsRequest, setSelectedDetailsRequest] = useState(null);
   const { data: session } = useSession();
+  const [downloadingId, setDownloadingId] = useState(null);
 
   const fetchRequests = async () => {
     const res = await fetch("/api/requests");
@@ -49,9 +51,21 @@ export default function CertificateManager() {
     setSelectedDetailsRequest(request);
     setIsDetailsDialogOpen(true);
   };
+  const handleDownloadClick = (requestId) => {
+    setDownloadingId(requestId);
+    setTimeout(() => setDownloadingId(null), 6000);
+  };
 
-  // Define columns for the new data table
   const columns = [
+    {
+      accessorKey: "trainingType",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Training Type" />
+      ),
+      cell: ({ row }) => (
+        <div>{row.getValue("trainingType")}</div>
+      ),
+    },
     {
       accessorKey: "companyName",
       header: ({ column }) => (
@@ -135,7 +149,7 @@ export default function CertificateManager() {
         if (!approvedDate) {
           return <div className="text-gray-400">-</div>;
         }
-        return <div>{new Date(approvedDate).toLocaleDateString()}</div>;
+        return <div>{new Date(approvedDate).toLocaleDateString('en-GB')}</div>;
       },
     },
     {
@@ -145,7 +159,7 @@ export default function CertificateManager() {
       ),
       cell: ({ row }) => {
         const createdAt = row.getValue("createdAt");
-        return <div>{new Date(createdAt).toLocaleDateString()}</div>;
+        return <div>{new Date(createdAt).toLocaleDateString('en-GB')}</div>;
       },
     },
     {
@@ -153,6 +167,7 @@ export default function CertificateManager() {
       header: () => <div className="text-center">Action</div>,
       cell: ({ row }) => {
         const request = row.original;
+        const isDownloading = downloadingId === request._id;
 
         if (request.status === "Approved") {
           return (
@@ -161,14 +176,22 @@ export default function CertificateManager() {
                 href={`/api/generate-certificate/${request._id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  if (isDownloading) {
+                    e.preventDefault();
+                  } else {
+                    handleDownloadClick(request._id);
+                  }
+                  e.stopPropagation();
+                }}
               >
                 <Button
                   variant="outline"
                   size="sm"
                   className="hover:bg-indigo-600 hover:text-white"
+                  disabled={isDownloading}
                 >
-                  Download
+                  {isDownloading ? "Downloading..." : "Download"}
                 </Button>
               </Link>
             </div>
@@ -201,7 +224,6 @@ export default function CertificateManager() {
     },
   ];
 
-  // Define filter columns for the new data table
   const filterColumns = [
     {
       key: "companyName",
@@ -239,12 +261,13 @@ export default function CertificateManager() {
       title: "Approved Date",
       type: "date",
     },
+    {
+        key: "trainingType",
+        title: "Training Type",
+        type: "enum",
+        values: trainingOptions,
+    },
   ];
-
-  const handleAdd = async () => {
-    // The RequestModal will handle the actual add functionality
-    // This is just to satisfy the DataTable's onAdd prop if needed
-  };
 
   return (
     <div className="rounded-lg p-6">
