@@ -6,7 +6,7 @@ import { DataTableColumnHeader } from "./ui/data-table/data-table-column-header"
 import RequestDetailsDialog from "./RequestDetailsDialog";
 import { Button } from "@/components/ui/button";
 import trainingOptions from "@/constants/TrainingOptions";
-import Link from "next/link";
+import { Loader2 } from "lucide-react"; 
 
 const getStatusClasses = (status) => {
   switch (status) {
@@ -65,10 +65,31 @@ export default function AdminRequestManager() {
     setSelectedDetailsRequest(request);
     setIsDetailsDialogOpen(true);
   };
-  const handleDownloadClick = (requestId) => {
-    setDownloadingId(requestId);
-    setTimeout(() => setDownloadingId(null), 6000);
+
+  const handleDownloadClick = async (request) => {
+    setDownloadingId(request._id);
+    try {
+      const response = await fetch(`/api/generate-certificate/${request._id}`);
+
+      if (!response.ok) {
+        throw new Error("Failed to generate certificate.");
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${request.studentId.universityRollNo}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Download failed:", error);
+    } finally {
+      setTimeout(() => setDownloadingId(null), 3000);
+    }
   };
+
 
   const columns = useMemo(
     () => [
@@ -93,22 +114,32 @@ export default function AdminRequestManager() {
         ),
       },
       {
-        accessorFn: (row) => row.studentId?.department || "N/A",
+        accessorKey: "trainingType",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Training Type" />
+        ),
+        cell: ({ row }) => (
+          <div>{row.getValue("trainingType")}</div>
+        ),
+      },
+      {
+        accessorKey: "refNo",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Ref No." />
+        ),
+        cell: ({ row }) => {
+          const refNo = row.getValue("refNo");
+          return <div>{refNo || "-"}</div>;
+        },
+      },
+      {
+        accessorFn: (row) => row.studentId?.department.toLocaleUpperCase() || "N/A",
         id: "department",
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Department" />
         ),
         cell: ({ row }) => <div>{row.getValue("department")}</div>,
       },
-      {
-      accessorKey: "trainingType",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Training Type" />
-      ),
-      cell: ({ row }) => (
-        <div>{row.getValue("trainingType")}</div>
-      ),
-    },
       {
         accessorKey: "companyName",
         header: ({ column }) => (
@@ -117,54 +148,6 @@ export default function AdminRequestManager() {
         cell: ({ row }) => (
           <div className="font-medium">{row.getValue("companyName")}</div>
         ),
-      },
-      {
-        accessorKey: "companyAddress",
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Company Address" />
-        ),
-        cell: ({ row }) => (
-          <div className="max-w-xs truncate">
-            {row.getValue("companyAddress")}
-          </div>
-        ),
-      },
-      {
-        accessorKey: "companyContact",
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Contact" />
-        ),
-        cell: ({ row }) => <div>{row.getValue("companyContact")}</div>,
-      },
-      {
-        accessorKey: "mentorName",
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Mentor Name" />
-        ),
-        cell: ({ row }) => {
-          const mentorName = row.getValue("mentorName");
-          return <div>{mentorName || "-"}</div>;
-        },
-      },
-      {
-        accessorKey: "mentorEmail",
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Mentor Email" />
-        ),
-        cell: ({ row }) => {
-          const mentorEmail = row.getValue("mentorEmail");
-          return <div>{mentorEmail || "-"}</div>;
-        },
-      },
-      {
-        accessorKey: "mentorContact",
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Mentor Contact" />
-        ),
-        cell: ({ row }) => {
-          const mentorContact = row.getValue("mentorContact");
-          return <div>{mentorContact || "-"}</div>;
-        },
       },
       {
         accessorKey: "status",
@@ -214,29 +197,19 @@ export default function AdminRequestManager() {
 
           if (request.status === "Approved") {
             return (
-              <div className="text-center ">
-                <Link
-                href={`/api/generate-certificate/${request._id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => {
-                  if (isDownloading) {
-                    e.preventDefault();
-                  } else {
-                    handleDownloadClick(request._id);
-                  }
-                  e.stopPropagation();
-                }}
-              >
+              <div className="text-center">
                 <Button
                   variant="outline"
                   size="sm"
-                  className="hover:bg-indigo-600 hover:text-white"
+                  className="hover:bg-indigo-600 hover:cursor-pointer hover:text-white"
                   disabled={isDownloading}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDownloadClick(request);
+                  }}
                 >
-                  {isDownloading ? "Downloading..." : "Download"}
+                  {isDownloading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Download"}
                 </Button>
-              </Link>
               </div>
             );
           }
@@ -278,11 +251,10 @@ export default function AdminRequestManager() {
         enableHiding: false,
       },
     ],
-    [handleUpdateStatus],
+    [handleUpdateStatus, downloadingId],
   );
 
   const filterColumns = [
-    
     {
       key: "studentName",
       title: "Student Name",
@@ -294,29 +266,24 @@ export default function AdminRequestManager() {
       type: "string",
     },
     {
+      key: "refNo",
+      title: "Ref No.",
+      type: "string",
+    },
+    {
       key: "department",
       title: "Department",
       type: "string",
     },
     {
-        key: "trainingType",
-        title: "Training Type",
-        type: "enum",
-        values: trainingOptions,
+      key: "trainingType",
+      title: "Training Type",
+      type: "enum",
+      values: trainingOptions,
     },
     {
       key: "companyName",
       title: "Company Name",
-      type: "string",
-    },
-    {
-      key: "mentorName",
-      title: "Mentor Name",
-      type: "string",
-    },
-    {
-      key: "mentorEmail",
-      title: "Mentor Email",
       type: "string",
     },
     {

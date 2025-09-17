@@ -43,6 +43,18 @@ export async function GET(request) {
       const filteredRequests = requests.filter(req => req.studentId !== null);
       return NextResponse.json(filteredRequests, { status: 200 });
     }
+    else if (userRole === 'superadmin'){
+      const requests = await CertificateRequest.find({})
+        .populate({
+          path: 'studentId',
+          model: User,
+          select: 'name universityRollNo department'
+        })
+        .sort({ createdAt: -1 });
+      
+      const filteredRequests = requests.filter(req => req.studentId !== null);
+      return NextResponse.json(filteredRequests, { status: 200 });
+    }
 
   } catch (error) {
     return NextResponse.json({ message: "Server error" }, { status: 500 });
@@ -85,7 +97,7 @@ export async function POST(request) {
 
 export async function PATCH(request) {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== 'admin') {
+  if (!session || session.user.role === 'student') {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
   

@@ -13,8 +13,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Clock } from "lucide-react";
-import Link from "next/link";
+import { Clock, Loader2 } from "lucide-react";
 import trainingOptions from "@/constants/TrainingOptions";
 
 const getStatusClasses = (status) => {
@@ -51,9 +50,28 @@ export default function CertificateManager() {
     setSelectedDetailsRequest(request);
     setIsDetailsDialogOpen(true);
   };
-  const handleDownloadClick = (requestId) => {
-    setDownloadingId(requestId);
-    setTimeout(() => setDownloadingId(null), 6000);
+  const handleDownloadClick = async (request) => {
+    setDownloadingId(request._id);
+    try {
+      const response = await fetch(`/api/generate-certificate/${request._id}`);
+
+      if (!response.ok) {
+        throw new Error("Failed to generate certificate.");
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${request.studentId.universityRollNo}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Download failed:", error);
+    } finally {
+      setTimeout(() => setDownloadingId(null), 3000);
+    }
   };
 
   const columns = [
@@ -62,9 +80,17 @@ export default function CertificateManager() {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Training Type" />
       ),
-      cell: ({ row }) => (
-        <div>{row.getValue("trainingType")}</div>
+      cell: ({ row }) => <div>{row.getValue("trainingType")}</div>,
+    },
+    {
+      accessorKey: "refNo",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Ref No." />
       ),
+      cell: ({ row }) => {
+        const refNo = row.getValue("refNo");
+        return <div>{refNo || "-"}</div>;
+      },
     },
     {
       accessorKey: "companyName",
@@ -132,7 +158,9 @@ export default function CertificateManager() {
         const status = row.getValue("status");
         return (
           <span
-            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClasses(status)}`}
+            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClasses(
+              status
+            )}`}
           >
             {status}
           </span>
@@ -149,7 +177,7 @@ export default function CertificateManager() {
         if (!approvedDate) {
           return <div className="text-gray-400">-</div>;
         }
-        return <div>{new Date(approvedDate).toLocaleDateString('en-GB')}</div>;
+        return <div>{new Date(approvedDate).toLocaleDateString("en-GB")}</div>;
       },
     },
     {
@@ -159,7 +187,7 @@ export default function CertificateManager() {
       ),
       cell: ({ row }) => {
         const createdAt = row.getValue("createdAt");
-        return <div>{new Date(createdAt).toLocaleDateString('en-GB')}</div>;
+        return <div>{new Date(createdAt).toLocaleDateString("en-GB")}</div>;
       },
     },
     {
@@ -172,28 +200,18 @@ export default function CertificateManager() {
         if (request.status === "Approved") {
           return (
             <div className="text-center">
-              <Link
-                href={`/api/generate-certificate/${request._id}`}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Button
+                variant="outline"
+                size="sm"
+                className="hover:bg-indigo-600 hover:cursor-pointer hover:text-white"
+                disabled={isDownloading}
                 onClick={(e) => {
-                  if (isDownloading) {
-                    e.preventDefault();
-                  } else {
-                    handleDownloadClick(request._id);
-                  }
                   e.stopPropagation();
+                  handleDownloadClick(request);
                 }}
               >
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="hover:bg-indigo-600 hover:text-white"
-                  disabled={isDownloading}
-                >
-                  {isDownloading ? "Downloading..." : "Download"}
-                </Button>
-              </Link>
+                {isDownloading ? <Loader2 className="h-4 w-4 animate-spin" /> :"Download"}
+              </Button>
             </div>
           );
         }
@@ -262,10 +280,10 @@ export default function CertificateManager() {
       type: "date",
     },
     {
-        key: "trainingType",
-        title: "Training Type",
-        type: "enum",
-        values: trainingOptions,
+      key: "trainingType",
+      title: "Training Type",
+      type: "enum",
+      values: trainingOptions,
     },
   ];
 
