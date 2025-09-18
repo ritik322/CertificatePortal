@@ -18,7 +18,7 @@ export default function Home() {
   useEffect(() => {
     if (status === "authenticated") {
       const userRole = session.user.role;
-      if (userRole === "admin") {
+      if (userRole !== "student") {
         router.replace("/admin");
       } else if (userRole === "student") {
         router.replace("/student");
