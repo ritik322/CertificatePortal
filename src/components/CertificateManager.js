@@ -333,7 +333,7 @@ export default function CertificateManager() {
   ], []);
 
   return (
-    <div className="rounded-lg p-6">
+    <div className="min-h-screen rounded-lg p-6">
       <div className="mb-8">
         <h2 className="text-lg font-semibold text-gray-900">Your Requests</h2>
         <p className="mt-1 text-sm text-gray-600">
