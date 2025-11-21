@@ -189,8 +189,8 @@ export default function AdminRequestManager() {
         },
       },
       {
-        id: "actions",
-        header: () => <div className="text-center">Actions</div>,
+        id: "requestLetter",
+        header: () => <div className="text-center">Request Letter</div>,
         cell: ({ row }) => {
           const request = row.original;
           const isDownloading = downloadingId === request._id;
@@ -250,6 +250,30 @@ export default function AdminRequestManager() {
         enableSorting: false,
         enableHiding: false,
       },
+      {
+        id: "confirmationLetter",
+        header: "Confirmation Letter",
+        cell: ({ row }) => {
+          const { offerLetterUrl } = row.original;
+          if (!offerLetterUrl) {
+            return <div className="text-center text-gray-400">-</div>;
+          }
+          return (
+            <div className="text-center">
+              <a
+                href={offerLetterUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="text-indigo-600 hover:underline"
+              >
+                View
+              </a>
+            </div>
+          );
+        },
+      },
+      
     ],
     [handleUpdateStatus, downloadingId],
   );

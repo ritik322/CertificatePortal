@@ -45,7 +45,7 @@ export default function RequestDetailsDialog({
 
   if (!request) return null;
 
-  const isAdmin = session?.user?.role === "admin";
+  const isAdmin = session?.user?.role === "admin" || session?.user?.role === "superadmin";
 
   const handleSaveRemarks = async () => {
     if (!isAdmin) return;
@@ -75,6 +75,7 @@ export default function RequestDetailsDialog({
       setIsSubmitting(false);
     }
   };
+  console.log(request)
 
   const handleCancelEdit = () => {
     setRemarks(currentRemarks);
@@ -92,9 +93,7 @@ export default function RequestDetailsDialog({
         </DialogHeader>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-2">
-          {/* Left Column */}
           <div className="space-y-4">
-            {/* Student Information */}
             <div className="bg-gray-50 p-4 rounded-lg border">
               <h3 className="font-semibold text-base mb-2 text-gray-800">
                 Student Information
@@ -115,7 +114,6 @@ export default function RequestDetailsDialog({
               </div>
             </div>
 
-            {/* Company Information */}
             <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
               <h3 className="font-semibold text-base mb-2 text-gray-800">
                 Company Information
@@ -143,9 +141,7 @@ export default function RequestDetailsDialog({
             </div>
           </div>
 
-          {/* Right Column */}
           <div className="space-y-4">
-            {/* Request Information */}
             <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
               <h3 className="font-semibold text-base mb-2 text-gray-800">
                 Request Information
@@ -173,6 +169,19 @@ export default function RequestDetailsDialog({
                     {new Date(request.approvedDate).toLocaleDateString('en-GB')}
                   </div>
                 )}
+                {request.offerLetterUrl && (
+                <div>
+                  <span className="font-medium text-gray-600">Offer Letter:</span>{" "}
+                  <a
+                    href={request.offerLetterUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-indigo-600 hover:underline"
+                  >
+                    View Uploaded File
+                  </a>
+                </div>
+              )}
               </div>
             </div>
 
@@ -181,7 +190,6 @@ export default function RequestDetailsDialog({
                 <h3 className="font-semibold text-base text-gray-800">
                   Admin Remarks
                 </h3>
-                {/* **FIX:** The button now only checks if the user is an admin */}
                 {isAdmin && (
                   <div className="space-x-2">
                     {isEditing ? (

@@ -115,7 +115,7 @@ export default function RequestModal({ user, onSuccess }) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="trainingType">Training Type</Label>
-            <Select onValueChange={handleSelectChange} value={formData.trainingType}>
+            <Select required onValueChange={handleSelectChange} value={formData.trainingType}>
                 <SelectTrigger id="trainingType">
                     <SelectValue placeholder="Select a training type..." />
                 </SelectTrigger>
@@ -150,9 +150,8 @@ export default function RequestModal({ user, onSuccess }) {
               />
             </div>
           </div>
-
           <div className="space-y-2">
-            <Label htmlFor="companyAddress">Company Address</Label>
+            <Label htmlFor="companyAddress">Complete Company Address</Label>
             <Input
               id="companyAddress"
               name="companyAddress"
@@ -161,10 +160,10 @@ export default function RequestModal({ user, onSuccess }) {
               required
             />
           </div>
-
           <div className="space-y-2">
             <Label htmlFor="companyEmail">Company Email</Label>
             <Input
+              required
               id="companyEmail"
               name="companyEmail"
               type="email"
@@ -175,7 +174,7 @@ export default function RequestModal({ user, onSuccess }) {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="mentorName">Mentor Name</Label>
+              <Label htmlFor="mentorName">Contact Person Name</Label>
               <Input
                 id="mentorName"
                 name="mentorName"
@@ -185,7 +184,7 @@ export default function RequestModal({ user, onSuccess }) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="mentorContact">Mentor Contact</Label>
+              <Label htmlFor="mentorContact">Contact</Label>
               <Input
                 required
                 id="mentorContact"
@@ -198,13 +197,14 @@ export default function RequestModal({ user, onSuccess }) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="mentorEmail">Mentor Email </Label>
+            <Label htmlFor="mentorEmail">Contact Person Email </Label>
             <Input
               id="mentorEmail"
               name="mentorEmail"
               type="email"
               value={formData.mentorEmail}
               onChange={handleChange}
+              required
             />
           </div>
           {error && <p className="text-red-600 text-sm text-center">{error}</p>}

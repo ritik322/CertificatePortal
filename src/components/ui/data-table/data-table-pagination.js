@@ -15,12 +15,12 @@ import {
 
 export function DataTablePagination({ table }) {
   return (
-    <div className="flex items-center justify-between px-2 mt-4">
-      <div className="text-muted-foreground flex-1 text-sm">
+    <div className="flex flex-col items-center justify-between gap-4 px-2 mt-4 sm:flex-row">
+      <div className="text-muted-foreground flex-1 text-sm text-center sm:text-left order-last sm:order-first">
         {table.getFilteredSelectedRowModel().rows.length} of{" "}
         {table.getFilteredRowModel().rows.length} row(s) selected.
       </div>
-      <div className="flex items-center space-x-6 lg:space-x-8">
+      <div className="flex flex-col items-center gap-4 sm:flex-row sm:space-x-6 lg:space-x-8">
         <div className="flex items-center space-x-2">
           <p className="text-sm font-medium">Rows per page</p>
           <Select
@@ -52,7 +52,7 @@ export function DataTablePagination({ table }) {
             disabled={!table.getCanPreviousPage()}
           >
             <span className="sr-only">Go to first page</span>
-            <ChevronDoubleLeftIcon />
+            <ChevronDoubleLeftIcon className="h-4 w-4" />
           </Button>
           <Button
             variant="outline"
@@ -62,7 +62,7 @@ export function DataTablePagination({ table }) {
             disabled={!table.getCanPreviousPage()}
           >
             <span className="sr-only">Go to previous page</span>
-            <ChevronLeftIcon />
+            <ChevronLeftIcon className="h-4 w-4" />
           </Button>
           <Button
             variant="outline"
@@ -72,7 +72,7 @@ export function DataTablePagination({ table }) {
             disabled={!table.getCanNextPage()}
           >
             <span className="sr-only">Go to next page</span>
-            <ChevronRightIcon />
+            <ChevronRightIcon className="h-4 w-4" />
           </Button>
           <Button
             variant="outline"
@@ -82,7 +82,7 @@ export function DataTablePagination({ table }) {
             disabled={!table.getCanNextPage()}
           >
             <span className="sr-only">Go to last page</span>
-            <ChevronDoubleRightIcon />
+            <ChevronDoubleRightIcon className="h-4 w-4" />
           </Button>
         </div>
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react"; // Import useMemo and useCallback
 import { useSession } from "next-auth/react";
 import { DataTable } from "./ui/data-table";
 import { DataTableColumnHeader } from "./ui/data-table/data-table-column-header";
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Clock, Loader2 } from "lucide-react";
 import trainingOptions from "@/constants/TrainingOptions";
+import UploadModal from "./UploadModal";
 
 const getStatusClasses = (status) => {
   switch (status) {
@@ -34,22 +35,23 @@ export default function CertificateManager() {
   const { data: session } = useSession();
   const [downloadingId, setDownloadingId] = useState(null);
 
-  const fetchRequests = async () => {
+  const fetchRequests = useCallback(async () => {
     const res = await fetch("/api/requests");
     if (res.ok) {
       const data = await res.json();
       setRequests(data);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchRequests();
-  }, []);
+  }, [fetchRequests]);
 
   const handleRowClick = (request) => {
     setSelectedDetailsRequest(request);
     setIsDetailsDialogOpen(true);
   };
+
   const handleDownloadClick = async (request) => {
     setDownloadingId(request._id);
     try {
@@ -74,7 +76,7 @@ export default function CertificateManager() {
     }
   };
 
-  const columns = [
+  const columns = useMemo(() => [
     {
       accessorKey: "trainingType",
       header: ({ column }) => (
@@ -191,8 +193,8 @@ export default function CertificateManager() {
       },
     },
     {
-      id: "actions",
-      header: () => <div className="text-center">Action</div>,
+      id: "requestLetter",
+      header: () => <div className="text-center">Request Letter</div>,
       cell: ({ row }) => {
         const request = row.original;
         const isDownloading = downloadingId === request._id;
@@ -240,9 +242,52 @@ export default function CertificateManager() {
       enableSorting: false,
       enableHiding: false,
     },
-  ];
+    {id: "confirmationLetter",
+      header: () => <div className="text-center">Confirmation Letter</div>,
+      cell: ({ row }) => {
+        const request = row.original;
 
-  const filterColumns = [
+        if (request.status === "Approved") {
+          return (
+            <div className="text-center">
+              {request.offerLetterUrl ? (
+                <Button asChild variant="outline" size="sm" onClick={(e) => e.stopPropagation()} >
+                  <a href={request.offerLetterUrl} target="_blank" rel="noopener noreferrer">View</a>
+                </Button>
+              ) : (
+                <UploadModal request={request} onSuccess={fetchRequests} />
+              )}
+            </div>
+          );
+        }
+
+        if (request.status === "Pending") {
+          return (
+            <div className="text-center">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="flex justify-center">
+                      <Clock className="h-5 w-5 text-gray-400" />
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Awaiting Approval</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          );
+        }
+
+        return <div className="text-center text-sm text-gray-500">-</div>;
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
+  ], [downloadingId, fetchRequests]); 
+
+  const filterColumns = useMemo(() => [
     {
       key: "companyName",
       title: "Company Name",
@@ -285,7 +330,7 @@ export default function CertificateManager() {
       type: "enum",
       values: trainingOptions,
     },
-  ];
+  ], []);
 
   return (
     <div className="rounded-lg p-6">

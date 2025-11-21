@@ -254,7 +254,7 @@ export function DataTable({
 
   return (
     <div>
-      <div className="flex flex-col md:flex-row w-full justify-between items-end mb-4 gap-2">
+      <div className="flex flex-col md:flex-row w-full justify-between items-end mb-4 gap-4">
         <div className="flex items-center px-2 h-fit max-md:w-full">
           <MagnifyingGlassIcon className="size-6 mr-2" />
           <Input
@@ -262,7 +262,7 @@ export function DataTable({
             value={table.getState().globalFilter}
             onChange={(event) => table.setGlobalFilter(event.target.value)}
             size={40}
-            className="md:max-w-sm"
+            className="md:max-w-sm bg-white"
           />
         </div>
         <div className="flex gap-2 max-md:w-full max-md:justify-center">
